@@ -42,19 +42,14 @@ class MyWXBot(WXBot):
                     self.robot_switch = True
                     self.send_msg_by_uid(u'[Bot.v3] ' + u'机器人已开启！', msg['to_user_id'])
 
-    def tell_fortune():
+    def tell_fortune(self, msg_data):
         reply = '[Bot.v3] '
-        response = subprocess.Popen(['fortune', '-a'], stdout=subprocess.PIPE).communicate()[0]
-        reply += response
-        return reply
-    def tell_poem():
-        reply = '[Bot.v3] '
-        response = subprocess.Popen(['fortune', '-e', 'tang300', 'song100'], stdout=subprocess.PIPE).communicate()[0]
-        reply += response
-        return reply
-    def tell_dirty():
-        reply = '[Bot.v3] '
-        response = subprocess.Popen(['fortune', '-e', 'aj'], stdout=subprocess.PIPE).communicate()[0]
+        if u'好无聊' in msg_data:
+            response = subprocess.Popen(['fortune', '-a'], stdout=subprocess.PIPE).communicate()[0]
+        elif u'来首诗歌' in msg_data:
+            response = subprocess.Popen(['fortune', '-e', 'tang300', 'song100'], stdout=subprocess.PIPE).communicate()[0]
+        elif u'污一个' in msg_data:
+            response = subprocess.Popen(['fortune', '-e', 'aj'], stdout=subprocess.PIPE).communicate()[0]
         reply += response
         return reply
 
@@ -63,21 +58,15 @@ class MyWXBot(WXBot):
             self.send_msg_by_uid(u'[Bot.v3] ' + u'机器人已关闭... 請稍後再聯系！', msg['to_user_id'])
             return
         if msg['msg_type_id'] == 1 and msg['content']['type'] == 0:  # reply to self
-            # print(msg["content"]["data"])
             master_input = msg["content"]["data"]
-            if u'好无聊' in master_input:
-                self.send_msg_by_uid(tell_fortune(), msg['to_user_id'])
-            elif u'来首诗歌' in master_input:
-                self.send_msg_by_uid(tell_poem(), msg['to_user_id'])
-            else:
-                self.auto_switch(msg)
+            reply = self.tell_fortune(master_input)
+            self.send_msg_by_uid(reply, msg['to_user_id'])
+            self.auto_switch(msg)
         elif msg['msg_type_id'] == 4 and msg['content']['type'] == 0:
             if msg['user']['name'] == u'明明':
                 master_input = msg["content"]["data"]
-                if u'污一个' in master_input:
-                    self.send_msg_by_uid(self.tell_dirty(), msg['user']['id'])
-                elif u'来首诗歌' in master_input:
-                    self.send_msg_by_uid(self.tell_poem(), msg['user']['id'])
+                reply = self.tell_fortune(master_input)
+                self.send_msg_by_uid(reply, msg['user']['id'])
             if self.away_status == True:
                 self.send_msg_by_uid(u'[Bot.v3] ' + u' 主人不在, 请稍后联系! ', msg['user']['id'])
                 # TODO Add some functions!
@@ -110,6 +99,7 @@ class MyWXBot(WXBot):
                     if msg['content']['type'] == 0:  # text message
                         if self.ai_status == True:
                             # TODO Add some functions!
+                            pass
                         else:
                             response2 = u' %> 地球人你好, 我是第3代机器人.  请直接输入 "好无聊" 或 "来首诗歌"! '
                             reply += response2
@@ -120,19 +110,15 @@ class MyWXBot(WXBot):
                     if msg['content']['type'] == 0:  # text message
                         user_input = msg["content"]["desc"]
                         src_name = msg['content']['user']['name']
-                        # reply = '[Bot.v3] @' + src_name + ' : '
-                        if u'好无聊' in user_input:
-                            self.send_msg_by_uid(self.tell_fortune(), msg['user']['id'])
-                        elif u'来首诗歌' in user_input:
-                            self.send_msg_by_uid(self.tell_poem(), msg['user']['id'])
-                        elif u'讲个污笑话' in user_input or u'乐一个' in user_input:
-                            self.send_msg_by_uid(self.tell_dirty(), msg['user']['id'])
+                        reply = self.tell_fortune(master_input)
+                        self.send_msg_by_uid(reply, msg['user']['id'])
 
         elif msg['msg_type_id'] == 5 and msg['content']['type'] == 0:
             # if msg['user']['name'] == u'小冰':
                 # user_input = msg["content"]["data"]
                 # response = 'WTF!'
                 # self.send_msg_by_uid(response, msg['user']['id'])
+            pass
 
 def main():
     bot = MyWXBot()
