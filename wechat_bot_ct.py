@@ -72,16 +72,16 @@ class MyWXBot(WXBot):
             else:
                 self.auto_switch(msg)
         elif msg['msg_type_id'] == 4 and msg['content']['type'] == 0:
-            if self.away_status == True:
-                self.send_msg_by_uid(u'[Bot.v3] ' + u' 主人不在, 请稍后联系! ', msg['user']['id'])
-                # TODO Add some functions!
-                return
             if msg['user']['name'] == u'明明':
                 master_input = msg["content"]["data"]
                 if u'污一个' in master_input:
                     self.send_msg_by_uid(self.tell_dirty(), msg['user']['id'])
                 elif u'来首诗歌' in master_input:
                     self.send_msg_by_uid(self.tell_poem(), msg['user']['id'])
+            if self.away_status == True:
+                self.send_msg_by_uid(u'[Bot.v3] ' + u' 主人不在, 请稍后联系! ', msg['user']['id'])
+                # TODO Add some functions!
+                return
         elif msg['msg_type_id'] == 3 and msg['content']['type'] == 0:  # group text message
             if 'detail' in msg['content']:
                 my_names = self.get_group_member_name(self.my_account['UserName'], msg['user']['id'])
@@ -111,7 +111,7 @@ class MyWXBot(WXBot):
                         if self.ai_status == True:
                             # TODO Add some functions!
                         else:
-                            response2 = u'(你好, 我是第3代机器人.  请直接输入 "好无聊" 或 "来首诗歌"!) '
+                            response2 = u' %> 地球人你好, 我是第3代机器人.  请直接输入 "好无聊" 或 "来首诗歌"! '
                             reply += response2
                     else:
                         reply += u"对不起，只认字，其他杂七杂八的我都不认识，,,Ծ‸Ծ,,"
