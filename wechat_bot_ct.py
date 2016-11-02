@@ -122,7 +122,7 @@ class MyWXBot(WXBot):
                     self.send_msg_by_uid(reply, msg['user']['id'])
                 elif len(master_input) == 5 or len(master_input) == 7:
                     reply = self.q_guess_poem(master_input)
-                    self.send_msg_by_uid(reply, msg['to_user_id'])
+                    self.send_msg_by_uid(reply, msg['user']['id'])
             if self.away_status == True:
                 self.send_msg_by_uid(u'[Bot.v3] ' + u' 主人不在, 请稍后联系! ', msg['user']['id'])
                 user_input = msg["content"]["data"]
@@ -153,7 +153,6 @@ class MyWXBot(WXBot):
                     # print(msg)
                     if self.away_status == True:
                         self.send_msg_by_uid(u'[Bot.v3] ' + u' 主人不在, 请稍后联系! ', msg['user']['id'])
-                        return
                     src_name = msg['content']['user']['name']
                     reply = '@' + src_name + ' : '
                     if msg['content']['type'] == 0:  # text message
@@ -179,7 +178,7 @@ class MyWXBot(WXBot):
                         elif len(user_input) == 5 or len(user_input) == 7:
                             reply = self.q_poem(user_input)
                             if len(reply) > 12:
-                                self.send_msg_by_uid(reply, msg['to_user_id'])
+                                self.send_msg_by_uid(reply, msg['user']['id'])
 
         elif msg['msg_type_id'] == 5 and msg['content']['type'] == 0:
             # if msg['user']['name'] == u'小冰':
