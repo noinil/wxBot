@@ -13,7 +13,7 @@ class MyWXBot(WXBot):
         self.away_status = False
         self.ai_status = False
         self.poem_lines = []
-        with open('/Users/noinil/Learningspace/python_test/tang_poem/tang.txt', 'r') as fin:
+        with open('/home/noinil/Learningspace/poems/tang.txt', 'r') as fin:
             for line in fin:
                 self.poem_lines.append(line.strip())
 
@@ -56,7 +56,7 @@ class MyWXBot(WXBot):
         return 1
 
     def tell_fortune(self, msg_data):
-        reply = '[Bot.fortune]: '
+        reply = '[Bot.v3]: '
         if u'好无聊' in msg_data:
             response = subprocess.Popen(['fortune', '-a'], stdout=subprocess.PIPE).communicate()[0]
         elif u'来首诗歌' in msg_data:
@@ -67,7 +67,7 @@ class MyWXBot(WXBot):
         return reply
 
     def q_poem(self, msg_data):
-        reply = '[Bot.poet] '
+        reply = '[Bot.v4] '
         search_reg = re.compile(msg_data.encode('utf-8'))
         for dict_word in self.poem_lines:
             result = re.search(search_reg, dict_word)
@@ -77,7 +77,19 @@ class MyWXBot(WXBot):
                     reply += dict_word[m_pos.end():]
                 else:
                     reply += dict_word[:result.start()]
-        print(reply)
+        return reply
+
+    def q_guess_poem(self, msg_data):
+        reply = '[Bot.v4] '
+        search_reg = re.compile(msg_data.encode('utf-8'))
+        for dict_word in self.poem_lines:
+            result = re.search(search_reg, dict_word)
+            if result:
+                m_pos = re.match(search_reg, dict_word)
+                if m_pos:
+                    reply += dict_word[m_pos.end():]
+                else:
+                    reply += dict_word[:result.start()]
         if len(reply) < 12:
             while True:
                 ss = random.choice(self.poem_lines)
@@ -86,15 +98,6 @@ class MyWXBot(WXBot):
                     break
         return reply
 
-    def q_master_poem(self, msg_data):
-        reply = '[Bot.poet] '
-        search_reg = re.compile(msg_data.encode('utf-8'))
-        for dict_word in self.poem_lines:
-            result = re.search(search_reg, dict_word)
-            if result:
-                reply += dict_word
-                reply += '   '
-        return reply
 
     def handle_msg_all(self, msg):
         fortune_cmd = [u'好无聊', u'来首诗歌', u'污一个']
@@ -107,12 +110,10 @@ class MyWXBot(WXBot):
                 reply = self.tell_fortune(master_input)
                 self.send_msg_by_uid(reply, msg['to_user_id'])
             elif len(master_input) == 5 or len(master_input) == 7:
-                reply = self.q_poem(master_input)
-                if len(reply) > 12:
-                    self.send_msg_by_uid(reply, msg['to_user_id'])
+                reply = self.q_guess_poem(master_input)
+                self.send_msg_by_uid(reply, msg['to_user_id'])
             else:
                 istatus = self.auto_switch(msg)
-                
         elif msg['msg_type_id'] == 4 and msg['content']['type'] == 0:
             if msg['user']['name'] == u'明明':
                 master_input = msg["content"]["data"]
@@ -120,12 +121,15 @@ class MyWXBot(WXBot):
                     reply = self.tell_fortune(master_input)
                     self.send_msg_by_uid(reply, msg['user']['id'])
                 elif len(master_input) == 5 or len(master_input) == 7:
-                    reply = self.q_poem(master_input)
-                    if len(reply) > 12:
-                        self.send_msg_by_uid(reply, msg['to_user_id'])
+                    reply = self.q_guess_poem(master_input)
+                    self.send_msg_by_uid(reply, msg['to_user_id'])
             if self.away_status == True:
                 self.send_msg_by_uid(u'[Bot.v3] ' + u' 主人不在, 请稍后联系! ', msg['user']['id'])
+                user_input = msg["content"]["data"]
                 # TODO Add some functions!
+                if len(user_input) == 5 or len(user_input) == 7:
+                    reply = self.q_guess_poem(user_input)
+                    self.send_msg_by_uid(reply, msg['to_user_id'])
                 return
         elif msg['msg_type_id'] == 3 and msg['content']['type'] == 0:  # group text message
             if 'detail' in msg['content']:
@@ -153,11 +157,15 @@ class MyWXBot(WXBot):
                     src_name = msg['content']['user']['name']
                     reply = '[Bot.v3] @' + src_name + ' : '
                     if msg['content']['type'] == 0:  # text message
+                        user_input = msg["content"]["desc"]
                         if self.ai_status == True:
                             # TODO Add some functions!
                             pass
                         else:
-                            response2 = u' %> 地球人你好, 我是第3代机器人.  请直接输入 "好无聊" 或 "来首诗歌"! '
+                            if user_input in fortune_cmd:
+                                response2 = self.tell_fortune(user_input)
+                            elif len(user_input) == 5 or len(user_input) == 7:
+                                response2 = self.q_guess_poem(user_input)
                             reply += response2
                     else:
                         reply += u"对不起，只认字，其他杂七杂八的我都不认识，,,Ծ‸Ծ,,"
@@ -165,7 +173,6 @@ class MyWXBot(WXBot):
                 else:
                     if msg['content']['type'] == 0:  # text message
                         user_input = msg["content"]["desc"]
-                        src_name = msg['content']['user']['name']
                         if user_input in fortune_cmd:
                             reply = self.tell_fortune(user_input)
                             self.send_msg_by_uid(reply, msg['user']['id'])
