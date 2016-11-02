@@ -19,7 +19,7 @@ class MyWXBot(WXBot):
 
     def auto_switch(self, msg):
         msg_data = msg['content']['data']
-        stop_cmd = [u'机器人退下']
+        stop_cmd = [u'机器人退下吧']
         away_cmd = u'afk'
         start_cmd = [u'三花聚顶', u'飞龙在天', u'反清复明']
         back_cmd = u'btk'
@@ -155,7 +155,7 @@ class MyWXBot(WXBot):
                         self.send_msg_by_uid(u'[Bot.v3] ' + u' 主人不在, 请稍后联系! ', msg['user']['id'])
                         return
                     src_name = msg['content']['user']['name']
-                    reply = '[Bot.v3] @' + src_name + ' : '
+                    reply = '@' + src_name + ' : '
                     if msg['content']['type'] == 0:  # text message
                         user_input = msg["content"]["desc"]
                         if self.ai_status == True:
